@@ -2,16 +2,15 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-一个用于批量为图像添加局部放大面板的 Python 脚本。适用于学术论文、医学影像、显微摄影等需要突出显示感兴趣区域的场景。
+一个用于批量为图像添加局部放大面板的 Web 应用。适用于学术论文、医学影像、显微摄影等需要突出显示感兴趣区域的场景。
 
 ## 功能特性
 
 - 智能放大镜 — 精确标记和放大图像中的感兴趣区域（ROI）
 - 灵活样式 — 自定义连接线风格、颜色、粗细和位置
 - 精准控制 — 支持相对坐标（0.0~1.0）进行跨分辨率兼容
-- 三步工作流 — 网格参考 → 角点调试 → 最终出图
+- 四步工作流 — 上传 → 框选缩放区域 → 调整放大镜 → 配置连接线
 - 批量处理 — 支持同时处理多张图像
 - 论文级质量 — 输出 300 DPI PNG，适合期刊发表
 
@@ -34,87 +33,50 @@
 ### 环境要求
 
 - Python 3.7+
+- Flask
 - matplotlib
 - numpy
 
-### 安装
+### 安装与启动
 
 ```bash
-pip install matplotlib numpy
+pip install flask matplotlib numpy
+python app.py
 ```
 
-## 手工执行步骤
+访问 **http://localhost:8080**
 
-### 第一步：生成网格图
+### 四步工作流
 
-1. 打开 `figure-inset-zoomer.py`
-2. 找到顶部的 `MODE = "debug"`，改为 `MODE = "grid"`
-3. 保存文件
-4. 终端运行：
+#### 第一步：上传图像
 
-```bash
-python figure-inset-zoomer.py
-```
+点击上传区域或拖拽图像文件。支持批量上传。
 
-5. 打开 `output_images/grid_retinal-vessel-map.png`
-6. 看绿色数字（X轴）和青色数字（Y轴），读出要放大区域的比例
-7. 记下 `(x最小, x最大, y最小, y最大)` 四个值
-<img width="2241" height="1777" alt="grid_retinal-vessel-map" src="https://github.com/user-attachments/assets/f75206b4-b276-4840-a789-230207c8f83f" />
-### 第二步：生成对线图
+#### 第二步：框选缩放区域
 
-1. 回到 `figure-inset-zoomer.py`
-2. 把 `MODE` 改为 `"debug"`
-3. 把第一步读到的值填入 `ZOOM_RATIOS`
-4. 保存并运行：
+在图像上拖拽鼠标框选要放大的区域。右侧会显示当前选取的比例坐标。
 
-```bash
-python figure-inset-zoomer.py
-```
+- 可直接拖拽调整区域
+- 也可通过输入框精确设置 `(xmin, xmax, ymin, ymax)` 的值
 
-5. 打开 `output_images/debug_retinal-vessel-map.png`
-6. 看黄色 R0~R3（缩放框角点）和青色 I0~I3（放大镜角点）的位置
-7. 确认连接线是否满意，不满意就修改 `LINE1_RECT/LINE1_INS` 和 `LINE2_RECT/LINE2_INS`
-8. 重复运行直到连接线位置正确
-<img width="2940" height="2220" alt="debug_retinal-vessel-map" src="https://github.com/user-attachments/assets/938506e1-26c5-4aef-9784-a264500042a1" />
+#### 第三步：调整放大镜
 
-### 第三步：生成最终图
+设置放大镜的位置和大小：
 
-1. 把 `MODE` 改为 `"final"`
-2. 保存并运行：
+| 参数 | 说明 |
+|------|------|
+| `左边距` | 放大镜左侧边缘位置（0.0~1.0） |
+| `下边距` | 放大镜下边缘位置（0.0~1.0） |
+| `宽度` | 放大镜宽度比例 |
+| `高度` | 放大镜高度比例 |
 
-```bash
-python figure-inset-zoomer.py
-```
+常用预设：
+- 右上角：`0.58, 0.55, 0.40, 0.40`
+- 左上角：`0.02, 0.55, 0.40, 0.40`
+- 右下角：`0.58, 0.02, 0.40, 0.40`
+- 左下角：`0.02, 0.02, 0.40, 0.40`
 
-3. 最终图片在 `output_images/zoomed_retinal-vessel-map.png`
-<img width="2940" height="2220" alt="zoomed_retinal-vessel-map" src="https://github.com/user-attachments/assets/d7d0f887-29ca-4751-9e2c-14e8cbd539bb" />
-
-## 三步工作流
-
-脚本通过文件顶部的 `MODE` 变量控制运行行为。每一步修改 `MODE` 后重新运行即可。
-
-### 第一步 — 网格参考图（`MODE = "grid"`）
-
-生成带有 10% 间距网格的参考图，用于确定缩放区域的坐标。
-
-- **绿色数字**（顶部）= X 轴比例（水平方向，从左到右）
-- **青色数字**（左侧）= Y 轴比例（垂直方向，从上到下）
-- **红色半透明框** = 当前 `ZOOM_RATIOS` 的预览
-
-打开 `output_images/grid_xxx.png`，读取你想放大的区域对应的比例值，然后修改：
-
-```python
-ZOOM_RATIOS = (x最小, x最大, y最小, y最大)
-```
-
-所有值的范围为 `0.0 ~ 1.0`。例如 `(0.20, 0.38, 0.25, 0.46)` 表示选取水平方向 20%~38%、垂直方向 25%~46% 的区域。
-
-### 第二步 — 调试角点编号（`MODE = "debug"`）
-
-生成带有角点编号标注的图片，用于配置连接线。
-
-- **黄色 R0~R3** = 缩放框的四个角
-- **青色 I0~I3** = 放大镜的四个角
+#### 第四步：配置连接线
 
 ```
 角点编号（视觉位置）：
@@ -128,57 +90,8 @@ ZOOM_RATIOS = (x最小, x最大, y最小, y最大)
  3 = 左下    2 = 右下
 ```
 
-打开 `output_images/debug_xxx.png`，确认角点位置后，修改连接线配置：
-
-```python
-LINE1_RECT = 0;  LINE1_INS = 0   # R0 → I0
-LINE2_RECT = 3;  LINE2_INS = 3   # R3 → I3
-```
-
-### 第三步 — 正式出图（`MODE = "final"`）
-
-生成干净无标注的最终图片，可直接用于发表。
-
-输出文件命名为 `zoomed_xxx.png`。
-
-## 参数说明
-
-所有参数集中在 `figure-inset-zoomer.py` 文件顶部。
-
-### 缩放区域
-
-```python
-ZOOM_RATIOS = (x最小, x最大, y最小, y最大)
-```
-
-| 参数 | 说明 |
-|------|------|
-| `x最小` | 缩放区域左边缘（0.0 = 图片最左侧） |
-| `x最大` | 缩放区域右边缘（1.0 = 图片最右侧） |
-| `y最小` | 缩放区域上边缘（0.0 = 图片最顶部） |
-| `y最大` | 缩放区域下边缘（1.0 = 图片最底部） |
-
-### 放大镜位置与大小
-
-```python
-INSET_RECT = [左边距, 下边距, 宽度, 高度]
-```
-
-| 位置 | 参考值 |
-|------|--------|
-| 右上角 | `[0.58, 0.55, 0.40, 0.40]` |
-| 左上角 | `[0.02, 0.55, 0.40, 0.40]` |
-| 右下角 | `[0.58, 0.02, 0.40, 0.40]` |
-| 左下角 | `[0.02, 0.02, 0.40, 0.40]` |
-
-调整 `宽度` 和 `高度` 可改变放大镜大小，例如 `0.30` 更小，`0.50` 更大。
-
-### 连接线
-
-```python
-LINE1_RECT = 0;  LINE1_INS = 0   # 第1条线：缩放框角点 → 放大镜角点
-LINE2_RECT = 3;  LINE2_INS = 3   # 第2条线：缩放框角点 → 放大镜角点
-```
+- **黄色 R0~R3** = 缩放框的四个角
+- **青色 I0~I3** = 放大镜的四个角
 
 常用连线方案：
 
@@ -191,35 +104,54 @@ LINE2_RECT = 3;  LINE2_INS = 3   # 第2条线：缩放框角点 → 放大镜角
 
 如果连接线出现交叉，换另一对对角的角点即可。
 
-### 样式
+### 样式选项
 
-```python
-LINE_COLOR   = 'red'      # 连接线颜色
-LINE_WIDTH   = 2           # 连接线粗细
-LINE_STYLE   = '--'        # '--' 虚线  '-' 实线  ':' 点线  '-.' 点划线
-RECT_COLOR   = 'red'       # 缩放框颜色
-BORDER_COLOR = 'red'       # 放大镜边框颜色
+| 选项 | 说明 |
+|------|------|
+| 连接线颜色 | 连接线颜色（支持颜色名或 hex） |
+| 连接线粗细 | 1~10 |
+| 连接线样式 | 实线、虚线 `--`、点线 `:`、点划线 `-.` |
+
+### 预览与导出
+
+- **预览**：生成单张效果图
+- **批量处理**：一次性处理所有上传的图像
+- **下载全部**：将批量处理结果打包为 ZIP 下载
+
+## 参数说明
+
+所有参数使用相对坐标（0.0~1.0），跨分辨率兼容。
+
+### 缩放区域
+
+```
+xmin, xmax = 水平方向比例（0.0 = 左边缘, 1.0 = 右边缘）
+ymin, ymax = 垂直方向比例（0.0 = 顶部, 1.0 = 底部）
 ```
 
-## 使用示例
+### 放大镜位置与大小
 
-缩放区域在中偏左，放大镜放在右上角：
-
-```python
-MODE = "final"
-
-ZOOM_RATIOS = (0.20, 0.38, 0.25, 0.46)
-INSET_RECT  = [0.58, 0.55, 0.40, 0.40]
-
-LINE1_RECT = 1;  LINE1_INS = 1   # R1 → I1
-LINE2_RECT = 2;  LINE2_INS = 2   # R2 → I2
+```
+[左边距, 下边距, 宽度, 高度]
 ```
 
 ## 支持格式
 
-输入：PNG（默认）。如需处理 JPEG，将脚本中的 `'*.png'` 改为 `'*.jpg'` 或 `'*.*'`。
+输入：PNG, JPG, JPEG, BMP, TIFF, TIF
 
-输出：PNG，300 DPI。
+输出：PNG，300 DPI
+
+## 目录结构
+
+```
+├── app.py              # Flask Web 应用
+├── templates/
+│   └── index.html      # 前端页面
+├── static/
+│   └── js/main.js      # 前端逻辑
+├── input_images/       # 上传的图像
+└── output_images/     # 生成的图像
+```
 
 ## 许可证
 
