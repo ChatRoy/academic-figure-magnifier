@@ -1,7 +1,19 @@
-
 # Batch Zoom Tool — 批量图像局部放大工具
 
+[![Python Version](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 一个用于批量为图像添加局部放大面板的 Python 脚本。适用于学术论文、医学影像、显微摄影等需要突出显示感兴趣区域的场景。
+
+## 功能特性
+
+- 智能放大镜 — 精确标记和放大图像中的感兴趣区域（ROI）
+- 灵活样式 — 自定义连接线风格、颜色、粗细和位置
+- 精准控制 — 支持相对坐标（0.0~1.0）进行跨分辨率兼容
+- 三步工作流 — 网格参考 → 角点调试 → 最终出图
+- 批量处理 — 支持同时处理多张图像
+- 论文级质量 — 输出 300 DPI PNG，适合期刊发表
 
 ## 效果示意
 
@@ -16,11 +28,15 @@
 └──────────────────────────────────┘
 ```
 
-## 环境要求
+## 快速开始
+
+### 环境要求
 
 - Python 3.7+
 - matplotlib
 - numpy
+
+### 安装
 
 ```bash
 pip install matplotlib numpy
@@ -69,8 +85,6 @@ python figure-inset-zoomer.py
 ```
 
 3. 最终图片在 `output_images/zoomed_retinal-vessel-map.png`
-
----
 
 ## 三步工作流
 
