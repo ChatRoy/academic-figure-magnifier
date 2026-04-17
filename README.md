@@ -27,7 +27,7 @@
 │                                  │
 └──────────────────────────────────┘
 ```
-
+![alt text](output_images/zoomed_retinal-vessel-map.png)
 ## 快速开始
 
 ### 环境要求
@@ -58,7 +58,7 @@ python figure-inset-zoomer.py
 5. 打开 `output_images/grid_retinal-vessel-map.png`
 6. 看绿色数字（X轴）和青色数字（Y轴），读出要放大区域的比例
 7. 记下 `(x最小, x最大, y最小, y最大)` 四个值
-
+![alt text](output_images/grid_retinal-vessel-map.png)
 ### 第二步：生成对线图
 
 1. 回到 `figure-inset-zoomer.py`
@@ -74,7 +74,7 @@ python figure-inset-zoomer.py
 6. 看黄色 R0~R3（缩放框角点）和青色 I0~I3（放大镜角点）的位置
 7. 确认连接线是否满意，不满意就修改 `LINE1_RECT/LINE1_INS` 和 `LINE2_RECT/LINE2_INS`
 8. 重复运行直到连接线位置正确
-
+![alt text](output_images/debug_retinal-vessel-map.png)
 ### 第三步：生成最终图
 
 1. 把 `MODE` 改为 `"final"`
@@ -85,7 +85,7 @@ python figure-inset-zoomer.py
 ```
 
 3. 最终图片在 `output_images/zoomed_retinal-vessel-map.png`
-
+![alt text](output_images/zoomed_retinal-vessel-map.png)
 ## 三步工作流
 
 脚本通过文件顶部的 `MODE` 变量控制运行行为。每一步修改 `MODE` 后重新运行即可。
